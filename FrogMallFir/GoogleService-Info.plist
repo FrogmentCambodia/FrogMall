@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AD_UNIT_ID_FOR_BANNER_TEST</key>
+	<string>ca-app-pub-3940256099942544/2934735716</string>
+	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
+	<string>ca-app-pub-3940256099942544/4411468910</string>
+	<key>CLIENT_ID</key>
+	<string>514888728322-nchsfahpi7cuct3g4c8uodi2g6kpkdh6.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.514888728322-nchsfahpi7cuct3g4c8uodi2g6kpkdh6</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDkSQNly4I1r87er3M6BxeUoMst4hhRDaE</string>
+	<key>GCM_SENDER_ID</key>
+	<string>514888728322</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.Frogment.FrogMallFir</string>
+	<key>PROJECT_ID</key>
+	<string>frogment-ccf72</string>
+	<key>STORAGE_BUCKET</key>
+	<string>frogment-ccf72.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<true></true>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<false></false>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:514888728322:ios:71b1509d70aaa615</string>
+	<key>DATABASE_URL</key>
+	<string>https://frogment-ccf72.firebaseio.com</string>
+</dict>
+</plist>
