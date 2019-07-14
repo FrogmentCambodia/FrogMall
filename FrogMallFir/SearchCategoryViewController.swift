@@ -28,16 +28,12 @@ class SearchCategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        cellW = (view.frame.width / 3) - 10
         cellW = (view.frame.width - 81) / 3
         cellH = 250
         
         categoryCollectionView.dataSource = self
         categoryCollectionView.delegate = self
         categoryCollectionView.allowsSelection = true
-        
-//        categoryLabel.layer.borderColor = UIColor.black.cgColor
-//        categoryLabel.layer.borderWidth = 0.5
     }
 }
 

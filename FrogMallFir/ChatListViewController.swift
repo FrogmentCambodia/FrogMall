@@ -9,17 +9,13 @@
 import UIKit
 import Firebase
 import FirebaseUI
-//import FirebaseAuthUI
-//import FirebaseGoogleAuthUI
 import FirebaseStorage
-//import FirebaseStorageUI
 import FirebaseDatabase
 
 
 class ChatListViewController: UIViewController {
     
-    var chatTableView:UITableView!
-    var searchBar:UISearchBar!
+    @IBOutlet weak var chatTableView: UITableView!
     var msgList:[String] = []
     var disList:[String] = []
     var yourList:[String] = []
@@ -28,7 +24,6 @@ class ChatListViewController: UIViewController {
     var nameList:[String] = []
     var msgCountList:[String] = []
     var readCountList:[String] = []
-    var searchResults:[String] = []
     var ref1: DatabaseReference!
     var uid = ""
     var disName = ""
@@ -52,34 +47,14 @@ class ChatListViewController: UIViewController {
         disList.removeAll()
         yourList.removeAll()
         lastMList.removeAll()
-        chatTableView = UITableView(frame: view.frame, style: .plain)
-        SDImageCache.shared().clearDisk()
+        SDImageCache.shared.clearDisk()
         setupFirebase()
         chatTableView.register (UINib(nibName: "CustomCell", bundle: nil),forCellReuseIdentifier:"cell")
-        self.view.addSubview(chatTableView)
-        
-        searchBar = UISearchBar()
-        searchBar.delegate = self
-        searchBar.frame = CGRect(x:0, y:0, width:self.view.frame.width, height:60)
-        searchBar.layer.position = CGPoint(x: self.view.bounds.width/2, y: 89)
-        searchBar.searchBarStyle = UISearchBarStyle.default
-        searchBar.showsSearchResultsButton = false
-        searchBar.placeholder = "search"
-        searchBar.setValue("cancel", forKey: "_cancelButtonText")
-        searchBar.tintColor = UIColor.red
-        chatTableView.tableHeaderView = searchBar
-//        self.view.addSubview(searchBar)
-//        searchBar.frame.origin.y = 30
-//        chatTableView.frame.origin.y = searchBar.frame.maxY
         checkLoggedIn()
     }
-/*
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        Auth.auth().removeStateDidChangeListener(handle!)
-    }
-*/
+
     func setupFirebase() {
+        //Get initial data from firebase DB
         ref1 = Database.database().reference()
         let ref2 = ref1.child("chatList/\(self.uid)")
         ref2.queryLimited(toLast: 1000).observe(DataEventType.childAdded, with: { (snapshot) -> Void in
@@ -100,17 +75,14 @@ class ChatListViewController: UIViewController {
             self.nameList.append(nameList)
             self.msgCountList.append(msgCount)
             self.readCountList.append(readCount)
-//            print("**** msgList -> \(self.msgList)")
-//            print("**** disList -> \(self.disList)")
-//            print("**** lastMList -> \(self.lastMList)")
             print("**** msgCountList -> \(self.msgCountList)")
             print("**** readCountList -> \(self.readCountList)")
 
             self.chatTableView.delegate = self
             self.chatTableView.dataSource = self
             self.chatTableView.isScrollEnabled = true
-            SDImageCache.shared().clearDisk()
-            SDImageCache.shared().clearMemory()
+            SDImageCache.shared.clearDisk()
+            SDImageCache.shared.clearMemory()
             self.chatTableView.reloadData()
         })
         ref2.queryLimited(toLast: 1000).observe(DataEventType.childChanged, with: { (snapshot) in
@@ -120,10 +92,8 @@ class ChatListViewController: UIViewController {
             print("**** listen changed = \(displayName2),\(lastM2)")
             let num = self.disList.index(of: displayName2)
             if num != nil {
-//                if lastM2 != self.lastMList[num!] {
                 self.lastMList[num!] = lastM2
                 self.chatTableView.reloadData()
-//                }
             }
         })
         ref2.queryLimited(toLast: 1000).observe(DataEventType.childChanged, with: { (snapshot) in
@@ -143,14 +113,6 @@ class ChatListViewController: UIViewController {
     
     func authUI(_ authUI: FUIAuth, didSignInWith user: User?, error: Error?) {
     }
-/*
-    func clearInput() {
-        self.msgList.removeAll()
-        self.disList.removeAll()
-        self.yourList.removeAll()
-        self.lastMList.removeAll()
-    }
-*/
 }
 
 extension ChatListViewController: FUIAuthDelegate {
@@ -200,7 +162,6 @@ extension ChatListViewController: FUIAuthDelegate {
     func setupLogin() {
         authUI.delegate = self
         authUI.providers = providers
-        //        authUI.isSignInWithEmailHidden = true
         let kFirebaseTermsOfService = URL(string: "https://frogment-ccf72.firebaseapp.com")!
         authUI.tosurl = kFirebaseTermsOfService
         print("**** after_setupLogin")
@@ -209,30 +170,6 @@ extension ChatListViewController: FUIAuthDelegate {
 
 }
 
-extension ChatListViewController: UISearchBarDelegate {
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        self.view.endEditing(true)
-        searchBar.showsCancelButton = true
-        searchResults = msgList.filter{
-            $0.lowercased().contains(searchBar.text!.lowercased())
-        }
-        chatTableView.reloadData()
-    }
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.showsCancelButton = false
-        self.view.endEditing(true)
-        searchBar.text = ""
-        chatTableView.reloadData()
-    }
-    
-    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
-        searchBar.showsCancelButton = true
-        return true
-    }
-}
-
-
 
 extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -240,25 +177,12 @@ extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if searchBar.text != "" {
-            return searchResults.count
-        } else {
-            return msgList.count
-        }
+        return msgList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//2        let cell = UITableViewCell(style: .value1, reuseIdentifier: "cell")
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CustomCell
-        if searchBar.text != "" {
-//2            cell.textLabel?.text = searchResults[indexPath.row]
-            cell.cusItem.text = searchResults[indexPath.row]
-            
-        } else {
-//2            cell.textLabel?.text = msgList[(indexPath as NSIndexPath).row]
             cell.cusItem.text = msgList[(indexPath as NSIndexPath).row]
-        }
-//2        cell.detailTextLabel?.text = lastMList[(indexPath as NSIndexPath).row]
         cell.cusMsg.text = lastMList[(indexPath as NSIndexPath).row]
         if nameList[(indexPath as NSIndexPath).row] != ""{
             cell.cusName.text = nameList[(indexPath as NSIndexPath).row]
@@ -284,10 +208,6 @@ extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
             cell.cusCount.text = ""
         }
         
-//2        cell.accessoryType = UITableViewCellAccessoryType.disclosureIndicator
-//        cell.imageView?.image = UIImage(named: "account")
-
-//        let fileName = "account/\(yourList[(indexPath as NSIndexPath).row])/AccountImage_\(yourList[(indexPath as NSIndexPath).row]).jpg"
         let fileName = pathList[(indexPath as NSIndexPath).row]
         let storage = Storage.storage()
         let storageRef = storage.reference(forURL: "gs://frogment-ccf72.appspot.com")
@@ -302,16 +222,8 @@ extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
                 print("**** getChatData success \(fileName)")
             }
         }
-//2        cell.cusImage.contentMode = UIViewContentMode.left
         cell.cusImage.clipsToBounds = true
         cell.cusImage.contentMode = .scaleAspectFill
-//2        cell.cusImage.frame = CGRect(x:0, y:0, width:30, height:30)
-//        cell.imageView?.layer.cornerRadius = (cell.imageView?.frame.height)! / 2.0
-//        let path = UIBezierPath(roundedRect: (cell.imageView?.bounds)!, byRoundingCorners: [.bottomLeft, .bottomRight, .topLeft, .topRight], cornerRadii: CGSize(width: 7, height: 7))
-//        let mask = CAShapeLayer()
-//        mask.path = path.cgPath
-//        cell.imageView?.layer.mask = mask
-
         return cell
     }
 
@@ -323,7 +235,6 @@ extension ChatListViewController: UITableViewDelegate, UITableViewDataSource {
         disName = disList[indexPath.row]
         yourName = yourList[indexPath.row]
         checkLoggedIn2()
-//        performSegue(withIdentifier: "toChat",sender: nil)
     }
     
 

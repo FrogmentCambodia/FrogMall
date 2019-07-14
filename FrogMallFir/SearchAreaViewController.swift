@@ -22,7 +22,6 @@ class SearchAreaViewController: UIViewController, UITableViewDelegate, UITableVi
     override func viewDidLoad() {
         super.viewDidLoad()
         setTableView = UITableView(frame: view.frame, style: .grouped)
-//        setTableView.frame.origin.y = areaLabel.frame.maxY + 5
         setTableView.isScrollEnabled = false
         setTableView.delegate = self
         setTableView.dataSource = self
@@ -58,18 +57,6 @@ class SearchAreaViewController: UIViewController, UITableViewDelegate, UITableVi
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell2 = UITableViewCell(style: .subtitle, reuseIdentifier: "cell2")
         cell2.textLabel?.text = areaList[indexPath.row]
-/*
-        let tableDatas01 = [categoryList]
-        let tableDatas02 = [areaList]
-        var sectionData2:Array<Any>
-        if getCell == "Category" {
-            sectionData2 = tableDatas01[(indexPath as NSIndexPath).section]
-        } else {
-            sectionData2 = tableDatas02[(indexPath as NSIndexPath).section]
-        }
-        let cellData2 = sectionData2[(indexPath as NSIndexPath).row]
-        cell2.textLabel?.text = cellData2 as? String
- */
         cell2.accessoryType = UITableViewCellAccessoryType.disclosureIndicator
         return cell2
     }

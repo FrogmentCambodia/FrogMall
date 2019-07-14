@@ -12,6 +12,9 @@ pod 'Firebase/Storage'
 pod 'FirebaseUI/Storage'
 pod 'Firebase/Database'
 pod 'JSQMessagesViewController'
+pod 'Firebase/Auth'
+# pod 'Firebase/Auth'pod 'GoogleSignIn'
+pod 'GoogleSignIn'
   # Pods for FrogMallFir
 
 end

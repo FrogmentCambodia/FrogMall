@@ -60,7 +60,6 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         setCell = cellUp[indexPath.row]
         if setCell == "Area" {
-//20181117            performSegue(withIdentifier: "toSearchMore",sender: nil)
             performSegue(withIdentifier: "ToMap",sender: nil)
         } else if setCell == "Category"{
             performSegue(withIdentifier: "ToSCate",sender: nil)

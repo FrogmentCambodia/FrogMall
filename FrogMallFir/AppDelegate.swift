@@ -9,10 +9,9 @@
 import UIKit
 import Firebase
 import FirebaseUI
-//import FirebaseAuthUI
+import GoogleSignIn
 import GTMSessionFetcher
 import FBSDKCoreKit
-//import TwitterKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -24,7 +23,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let launchedBefore = UserDefaults.standard.bool(forKey: "launchedBefore")
         if(launchedBefore == true) {
-//            UserDefaults.standard.set(false, forKey: "launchedBefore")
         } else {
             UserDefaults.standard.set(true, forKey: "launchedBefore")
             let firstVC = storyboard.instantiateViewController(withIdentifier: "FirstViewController") as! FirstViewController
@@ -33,30 +31,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         FirebaseApp.configure()
-        FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
+        GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         
         return true
     }
     
-    
-    func application(_ app: UIApplication, open url: URL,
-                     options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
-        let sourceApplication = options[UIApplicationOpenURLOptionsKey.sourceApplication] as! String?
-        if FUIAuth.defaultAuthUI()?.handleOpen(url, sourceApplication: sourceApplication) ?? false {
-            return true
-        }
-        // other URL handling goes here.
-        return false
+    @available(iOS 9.0, *)
+    func application(_ application: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any])
+        -> Bool {
+            return GIDSignIn.sharedInstance().handle(url,
+                                                     sourceApplication:options[UIApplicationOpenURLOptionsKey.sourceApplication] as? String,
+                                                     annotation: [:])
     }
     
-    
-    func application(_ application: UIApplication,open url: URL,sourceApplication: String?,annotation: Any) -> Bool {
-        return FBSDKApplicationDelegate.sharedInstance().application(application, open: url, sourceApplication: sourceApplication, annotation: annotation)
-    }
-
- 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        FBSDKAppEvents.activateApp()
     }
 
 
@@ -81,6 +69,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         func applicationWillTerminate(_ application: UIApplication) {
             // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         }
-        
-        
+    
 }
+
+class Singleton: NSObject {
+    static let sharedInstance: Singleton = Singleton()
+    private override init() {}
+    
+    var shareGender = ""
+    var shareBirth = ""
+    
+}
+

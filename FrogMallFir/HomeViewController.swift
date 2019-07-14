@@ -9,9 +9,7 @@
 import UIKit
 import Firebase
 import FirebaseUI
-//import FirebaseAuthUI
 import FirebaseStorage
-//import FirebaseStorageUI
 import FirebaseDatabase
 
 class HomeViewController: UIViewController {
@@ -55,6 +53,7 @@ class HomeViewController: UIViewController {
     var blockedUserList:[String] = []
     var blockedItemList:[String] = []
     var favList:[String] = []
+    var orderList:[Int] = []
     let indicator = UIActivityIndicatorView()
     var cellArea = ""
     var cellCate = ""
@@ -64,6 +63,11 @@ class HomeViewController: UIViewController {
     var myEmail = ""
     var blockFlag = 0
     var blockedFlag = 0
+    
+    var authUI: FUIAuth { get { return FUIAuth.defaultAuthUI()!}}
+    let providers: [FUIAuthProvider] = [FUIGoogleAuth()]
+    var handle: AuthStateDidChangeListenerHandle?
+    var loginSt = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,20 +86,21 @@ class HomeViewController: UIViewController {
         getInputBlocked()
         getSellDate()
         getFavo()
-//        graColor()
-        SDImageCache.shared().clearDisk()
+        SDImageCache.shared.clearDisk()
         setupFirebase()
         collectionVIew.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(HomeViewController.refresh(sender:)), for: .valueChanged)
         registProfile()
+        
+        checkLoggedIn()
+        
         print("**** Home_screen")
     }
-/*
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        gradientLayer.frame = self.upView.frame
+    
+    func authUI(_ authUI: FUIAuth, didSignInWith user: User?, error: Error?) {
     }
-*/    
+    
+    // Get count from Firebase DB
     func setupFirebase() {
         let ref2 = ref1.child("count")
         ref2.queryLimited(toLast: 1).observe(DataEventType.value, with: { (snapshot) in
@@ -109,6 +114,7 @@ class HomeViewController: UIViewController {
         })
     }
     
+    // Get product information
     func getInput() {
         let ref3 = ref1.child("upload")
         ref3.observe(DataEventType.childAdded, with: { (snapshot) -> Void in
@@ -120,6 +126,7 @@ class HomeViewController: UIViewController {
             let account2 = value["account number"] as? String ?? ""
             let selldate2 = value["sell date"] as? String ?? ""
             let cDB2 = value["count DB"] as? String ?? ""
+            let orderNum = Int(cDB2)!
             let fav = value["favorite"] as? String ?? ""
             let disList = "\(title2) + \(account2) + \(self.myUid)"
             self.areaList.append(area2)
@@ -128,11 +135,14 @@ class HomeViewController: UIViewController {
             self.accountList.append(account2)
             self.dateList.append(selldate2)
             self.cDBList.append(cDB2)
+            self.orderList.shuffle()
+            self.orderList.append(orderNum)
             self.favList.append(fav)
             self.disList.append(disList)
         })
     }
     
+    // Get block user list
     func getInputBlock() {
         let ref4 = ref1.child("Account/\(myUid)/Block")
         ref4.observe(DataEventType.childAdded, with: { (snapshot) -> Void in
@@ -153,6 +163,7 @@ class HomeViewController: UIViewController {
         })
     }
     
+    // Get be blocked user list
     func getInputBlocked() {
         let ref5 = ref1.child("Account/\(myUid)/Be Blocked")
         ref5.observe(DataEventType.childAdded, with: { (snapshot) -> Void in
@@ -173,6 +184,7 @@ class HomeViewController: UIViewController {
         })
     }
     
+    // Get block sell date
     func getSellDate() {
         let ref6 = ref1.child("upload")
         ref6.queryLimited(toLast: 1000).observe(DataEventType.childChanged, with: { (snapshot) in
@@ -188,6 +200,7 @@ class HomeViewController: UIViewController {
         })
     }
     
+    // Get favorite user list
     func getFavo() {
         let ref8 = ref1.child("upload")
         ref8.queryLimited(toLast: 1000).observe(DataEventType.childChanged, with: { (snapshot) in
@@ -203,9 +216,21 @@ class HomeViewController: UIViewController {
         })
     }
     
+    // Register profile
     func registProfile() {
+        let f = DateFormatter()
+        f.dateStyle = .short
+        f.timeStyle = .none
+        f.locale = Locale(identifier: "ja_JP")
+        let now = Date()
+        let date = f.string(from: now)
+        
+        let singleton :Singleton =  Singleton.sharedInstance
+        let gender = singleton.shareGender
+        let birth = singleton.shareBirth
+        
         if Auth.auth().currentUser != nil {
-            let post1 = ["User ID" : myUid, "User name" : myName, "E-mail" : myEmail]
+            let post1 = ["User ID" : myUid, "User name" : myName, "E-mail" : myEmail, "Last Login" : date, "Gender" : gender, "Birthday" : birth]
             let ref7 = self.ref1.child("Account/\(myUid)/info")
             ref7.updateChildValues(post1)
             print("**** Regist profile!")
@@ -214,45 +239,15 @@ class HomeViewController: UIViewController {
         }
     }
 
-    
-    /*
-    func graColor() {
-        gradientLayer.frame = self.upView.frame
-        let color1 = UIColor(white: 0.99, alpha: 1).cgColor
-        let color2 = UIColor(white: 0, alpha: 0).cgColor
-        gradientLayer.colors = [color1, color2]
-        gradientLayer.startPoint = CGPoint.init(x: 0, y: 0)
-        gradientLayer.endPoint = CGPoint.init(x: 0.3, y:0.3)
-        self.upView.layer.insertSublayer(gradientLayer,at:0)
-        let color1 = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1).cgColor
-        let color2 = UIColor(red: 70/256.0, green: 120/256.0, blue: 70/256.0, alpha: 1).cgColor
-        let color3 = UIColor(red: 10/256.0, green: 120/256.0, blue: 50/256.0, alpha: 1).cgColor
-        gradientLayer.colors = [color1, color2]
-        //上が白で下が水色
-        //gradientLayer.startPoint = CGPoint.init(x: 0.5, y: 0)
-        //gradientLayer.endPoint = CGPoint.init(x: 0.5 , y:1 )
-        
-        //左が白で右が水色
-        //gradientLayer.startPoint = CGPoint.init(x: 0, y: 0.5)
-        //gradientLayer.endPoint = CGPoint.init(x: 1 , y:0.5)
-        
-        //左上が白で右下が水色
-        gradientLayer.startPoint = CGPoint.init(x: 0, y: 0)
-        gradientLayer.endPoint = CGPoint.init(x: 0.7, y:0.7)
-    }
-     */
-
-
     @objc func refresh(sender: UIRefreshControl) {
-        SDImageCache.shared().clearDisk()
-        SDImageCache.shared().clearMemory()
-//        blockUserList.removeAll()
-//        blockItemList.removeAll()
-//        getInputBlock()
+        SDImageCache.shared.clearDisk()
+        SDImageCache.shared.clearMemory()
+        orderList.shuffle()
         collectionVIew.reloadData()
         sender.endRefreshing()
     }
     
+    // Get product count
     func checkTimes(times :Int) {
         if times == 0 {
             self.countDB = (Int(countDBs))!
@@ -303,12 +298,13 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         let testCell:UICollectionViewCell =
             collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier,
                                                for: indexPath)
-        // Tag番号を使ってImageViewのインスタンス生成
+        // Create UIImageView instance
         let imageView = testCell.contentView.viewWithTag(1) as! UIImageView
         imageView.contentMode = .scaleAspectFill
         imageView.frame = CGRect(x:0, y:0, width:cellW, height:cellH)
         imageView.clipsToBounds = true
         
+        // Shape ImageView
         let path = UIBezierPath(roundedRect: imageView.bounds, byRoundingCorners: [.bottomLeft, .bottomRight, .topLeft, .topRight], cornerRadii: CGSize(width: 7, height: 7))
         let mask = CAShapeLayer()
         mask.path = path.cgPath
@@ -316,7 +312,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         
         checkTimes(times : indexPath.row)
         
-        let sortNum = self.countDB - indexPath.row
+        let sortNum = orderList[indexPath.row]
         let fileName = "images/sample\(sortNum).jpg"
         let storage = Storage.storage()
         let storageRef = storage.reference(forURL: "gs://frogment-ccf72.appspot.com")
@@ -324,6 +320,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         let placeholderImage = UIImage(named: "loading05")
         let blockTemp = accountList[sortNum-1]
         
+        // Confirm whether or not product is uploaded by block user
         if blockUserList.contains(blockTemp) {
             imageView.image = UIImage(named: "Blocked03")
         } else {
@@ -342,12 +339,11 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         soldDate.contentMode = .scaleAspectFill
         soldDate.clipsToBounds = true
 
+        // Get sell date
         if dateList[sortNum-1] != "" {
             soldDate.image = UIImage(named: "SoldOut3")
-//            print("**** sold out \(sortNum) \(dateList[sortNum-1])")
         } else {
             soldDate.image = UIImage(named: "")
-//            print("**** No sold out \(sortNum) \(dateList[sortNum-1])")
         }
         
         let heart = testCell.contentView.viewWithTag(4) as! UIImageView
@@ -355,6 +351,7 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         heart.contentMode = .scaleAspectFit
         heart.clipsToBounds = true
 
+        // Get favorite information
         if favList[sortNum-1] != "" {
             heart.image = UIImage(named: "heart2")
             if Int(favList[sortNum-1])! > 99 {
@@ -367,40 +364,13 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
             favLabel.text = ""
         }
         
-        /*
-        getInfo(soNum: sortNum)
-        label.text = "$ \(self.cellPrice)"
-        print("**** cellPrice -> \(self.cellPrice)")
-         */
+        // Get price information
         if priceList.count >= (sortNum) {
             label.text = "$ \(priceList[sortNum-1])"
         } else {
             label.text = "$ ???"
         }
         return testCell
-
-        //後でUpload時のサイズに制約をかけて、DL時は1024*1024に変更する。
-//1        reference.getData(maxSize: 1 * 4096 * 4096) { data, error in
-//1            if let error = error {
-//1                print("**** getData error")
-//1                print(error)
-//1            } else {
-//1                print("**** getData success")
-//1                let imageTest = UIImage(data: data!)
-//1                imageView.image = imageTest
-//                imageView.image = self.resize(image: imageTest)
-//1            }
-//1        }
-
-        // UIImageをUIImageViewのimageとして設定
-//0        imageView.image = cellImage
-/*
-        testCell.contentView.layer.borderColor = UIColor.black.cgColor
-        testCell.contentView.layer.shadowOffset = CGSize(width: 1,height: 1)
-        testCell.contentView.layer.shadowColor = UIColor.gray.cgColor
-        testCell.contentView.layer.shadowOpacity = 0.7
-        testCell.contentView.layer.shadowRadius = 5
-*/
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -409,13 +379,13 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        selectedCount = String(countDB - indexPath.row)
-        if blockUserList.contains(accountList[countDB-indexPath.row-1]) {
+        selectedCount = String(orderList[indexPath.row])
+        if blockUserList.contains(accountList[orderList[indexPath.row]-1]) {
             blockFlag = 1
         } else {
             blockFlag = 0
         }
-        if blockedUserList.contains(accountList[countDB-indexPath.row-1]) {
+        if blockedUserList.contains(accountList[orderList[indexPath.row]-1]) {
             blockedFlag = 1
         } else {
             blockedFlag = 0
@@ -472,4 +442,30 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         })
     }
     
+}
+
+extension HomeViewController: FUIAuthDelegate {
+    
+    func checkLoggedIn() {
+        print("**** start_checkLoggedIn")
+        self.setupLogin()
+        handle = Auth.auth().addStateDidChangeListener{auth, user in
+            if Auth.auth().currentUser != nil {
+                self.loginSt = 1
+                print("**** Listener_success")
+            } else {
+                self.performSegue(withIdentifier: "BackToHomeS5",sender: nil)
+                print("**** Listener_fail")
+            }
+        }
+    }
+    
+    func setupLogin() {
+        authUI.delegate = self
+        authUI.providers = providers
+        //        authUI.isSignInWithEmailHidden = true
+        let kFirebaseTermsOfService = URL(string: "https://frogment-ccf72.firebaseapp.com")!
+        authUI.tosurl = kFirebaseTermsOfService
+        print("**** after_setupLogin")
+    }
 }

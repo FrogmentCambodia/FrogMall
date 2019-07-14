@@ -8,13 +8,10 @@
 import UIKit
 import Firebase
 import FirebaseUI
-//import FirebaseAuthUI
-//import FirebaseGoogleAuthUI
 import FirebaseStorage
-//import FirebaseStorageUI
 import FirebaseDatabase
 
-let sectionTitle = [" ", "Item Description", "PRICE", "CATEGORY", "AREA", "Upload DATE", "Seller"]
+let sectionTitle = [" ", "Item Description", "PRICE", "CATEGORY", "AREA", "Seller"]
 
 class DetailViewController: UIViewController, UIScrollViewDelegate {
 
@@ -86,22 +83,16 @@ class DetailViewController: UIViewController, UIScrollViewDelegate {
         displayName = "\(itemTitle) + \(accountNo) + \(myUid)"
         
         titleLabel.text = itemTitle
-
         print("**** after getImage")
     }
-    
-/*
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        myTableView2.frame.origin.y = myTableView.frame.maxY + 200
-        myTableView2.frame.origin.x = 0
-    }
-*/
+
+    // Exclude NG character
     func excludeTitle() {
         let excludes = CharacterSet(charactersIn: ".$#[]")
         itemTitle = itemTitle.components(separatedBy: excludes).joined()
     }
     
+    // Get profile image
     func getImage() {
         let storage = Storage.storage()
         let storageRef = storage.reference(forURL: "gs://frogment-ccf72.appspot.com")
@@ -346,17 +337,16 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let tableData = [itemTitle, itemDescription, price, category, area, upDate, userName]
+        let tableData = [itemTitle, itemDescription, price, category, area, userName]
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         let sectionData = tableData[(indexPath as NSIndexPath).section]
-//        let cellData = sectionData[(indexPath as NSIndexPath).row]
         cell.textLabel?.text = sectionData
         if indexPath.section == 0 {
             cell.textLabel?.font = UIFont.systemFont(ofSize: 25)
         } else {
             cell.textLabel?.font = UIFont.systemFont(ofSize: 14)
         }
-        if indexPath.section == 6 {
+        if indexPath.section == 5 {
             cell.accessoryType = UITableViewCellAccessoryType.disclosureIndicator
         }
         cell.textLabel?.numberOfLines = 0
@@ -366,11 +356,6 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        /*
-        if indexPath.section == 6 {
-            
-        }
- */
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {

@@ -9,9 +9,7 @@
 import UIKit
 import Firebase
 import FirebaseUI
-//import FirebaseAuthUI
 import FirebaseStorage
-//import FirebaseStorageUI
 import FirebaseDatabase
 
 class SearchCollectViewController: UIViewController {
@@ -40,6 +38,8 @@ class SearchCollectViewController: UIViewController {
     var upDate = ""
     var accountNo = ""
     var emailAdd = ""
+    var userName = ""
+    var myName = ""
     var cellX = 0
     var cellY = 0
     var cellW:CGFloat = 0
@@ -49,6 +49,9 @@ class SearchCollectViewController: UIViewController {
     var priceList:[String] = []
     var cateList:[String] = []
     var accountList:[String] = []
+    var disList:[String] = []
+    var dateList:[String] = []
+    var cDBList:[String] = []
     var selectedCateList:[String] = []
     var selectedAreaList:[String] = []
     var blockUserList:[String] = []
@@ -70,6 +73,7 @@ class SearchCollectViewController: UIViewController {
         let user = Auth.auth().currentUser
         if let user = user {
             myUid = user.uid
+            myName = user.displayName!
         }
         showIndicator()
         ref1 = Database.database().reference()
@@ -77,7 +81,7 @@ class SearchCollectViewController: UIViewController {
         cellH = 250
         getInput()
         getInputBlock()
-        SDImageCache.shared().clearDisk()
+        SDImageCache.shared.clearDisk()
         SearchCollect.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(HomeViewController.refresh(sender:)), for: .valueChanged)
         setupFirebase()
@@ -149,8 +153,8 @@ class SearchCollectViewController: UIViewController {
     
     
     @objc func refresh(sender: UIRefreshControl) {
-        SDImageCache.shared().clearDisk()
-        SDImageCache.shared().clearMemory()
+        SDImageCache.shared.clearDisk()
+        SDImageCache.shared.clearMemory()
         SearchCollect.reloadData()
         sender.endRefreshing()
     }
@@ -290,6 +294,8 @@ extension SearchCollectViewController: UICollectionViewDataSource, UICollectionV
             dtVC.upDate = upDate
             dtVC.accountNo = accountNo
             dtVC.emailAdd = emailAdd
+            dtVC.userName = userName
+            dtVC.myName = myName
             dtVC.myUid = myUid
             dtVC.blockFlag = blockFlag
             print("**** segue > \(selectedref),\(selectedCount),\(itemTitle)")
@@ -311,6 +317,7 @@ extension SearchCollectViewController: UICollectionViewDataSource, UICollectionV
             self.upDate = value["upload date"] as? String ?? ""
             self.accountNo = value["account number"] as? String ?? ""
             self.emailAdd = value["E-mail"] as? String ?? ""
+            self.userName = value["user name"] as? String ?? ""
             
             self.performSegue(withIdentifier: "toDetailViewController2",sender: nil)
         })

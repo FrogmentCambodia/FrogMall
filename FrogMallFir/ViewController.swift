@@ -9,117 +9,242 @@
 import UIKit
 import Firebase
 import FirebaseUI
-import FBSDKCoreKit
-import FBSDKLoginKit
+import GoogleSignIn
 
-class ViewController: UIViewController {
+class ViewController: UIViewController,GIDSignInUIDelegate, GIDSignInDelegate {
     
-    @IBAction func imageButton(_ sender: Any) {
-        self.performSegue(withIdentifier: "ToCollectoin",sender: nil)
-//        checkLoggedIn2()
+    @IBAction func backButton(_ sender: Any) {
+        self.dismiss(animated: true, completion: nil)
     }
-    @IBAction func signOut(_ sender: Any) {
-        signOut()
+    @IBOutlet weak var mailText: UITextField!
+    @IBOutlet weak var pwText: UITextField!
+    @IBOutlet weak var mailUnderBar: UIView!
+    @IBOutlet weak var pwUnderBar: UIView!
+    
+    @IBAction func forgetButton(_ sender: Any) {
+
     }
+    @IBAction func logInButton(_ sender: Any) {
+        let email = mailText.text ?? ""
+        let password = pwText.text ?? ""
+        showIndicator()
         
-    var authUI: FUIAuth { get { return FUIAuth.defaultAuthUI()!}}
-//    let providers: [FUIAuthProvider] = [FUIGoogleAuth()]
-    let providers: [FUIAuthProvider] = [
-        FUIGoogleAuth(),
-        FUIFacebookAuth()
-        ]
-    var handle: AuthStateDidChangeListenerHandle?
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
+            guard let self = self else { return }
+            if let user = result?.user {
+                print("***** SignUp is completed! -> \(user)")
+                self.alertApper()
+            }
+            self.showErrorIfNeeded(error)
+            print("***** finish login process")
+        }
+    }
+    @IBOutlet weak var logInBar: UIButton!
+    @IBAction func createButton(_ sender: Any) {
+    }
+    @IBOutlet weak var createBar: UIButton!
+    @IBAction func tapGoogleSignIn(_ sender: Any) {
+        showIndicator()
+        GIDSignIn.sharedInstance().signIn()
+    }
+    var resultTag0 = false
+    var resultTag1 = false
+    let indicator = UIActivityIndicatorView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        checkLoggedIn()
-//        let loginButton:FBSDKLoginButton = FBSDKLoginButton()
-//        loginButton.center = self.view.center
-//        self.view.addSubview(loginButton)
-    }
-    
-    
-    func authUI(_ authUI: FUIAuth, didSignInWith user: User?, error: Error?) {
-        // handle user and error as necessary
+        createBar.layer.borderWidth = 0.5
+        createBar.layer.borderColor = UIColor.black.cgColor
+        
+        let toolBar = UIToolbar()
+        toolBar.frame = CGRect(x: 0, y: 0, width: 300, height: 30)
+        toolBar.sizeToFit()
+        let space = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.flexibleSpace, target: self, action: nil)
+        let doneButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.done, target: self, action: #selector(UploadViewController.doneButton))
+        toolBar.items = [space,doneButton]
+        mailText.inputAccessoryView = toolBar
+        pwText.inputAccessoryView = toolBar
+        logInBar.isEnabled = false
+        mailText.delegate = self
+        pwText.delegate = self
+        
+        GIDSignIn.sharedInstance().uiDelegate = self
+        GIDSignIn.sharedInstance().delegate = self
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
+    @objc func doneButton(){
+        self.view.endEditing(true)
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        Auth.auth().removeStateDidChangeListener(handle!)
-    }
-}
 
-extension ViewController: FUIAuthDelegate {
-    
-    func checkLoggedIn() {
-        print("**** start_checkLoggedIn")
-        self.setupLogin()
-        handle = Auth.auth().addStateDidChangeListener{auth, user in
-            if Auth.auth().currentUser != nil {
-                print("**** Listener_success")
-//                let vc = self.storyboard?.instantiateViewController(withIdentifier:"Menu")
-//                self.present(vc!, animated: true, completion: nil)
-//                print("**** present_New_VC")
-            } else {
-                print("**** Listener_fail")
-                self.login()
-            }
+// Validation check for E-Mail
+    func isValidEmail(latestSt:String) -> Bool {
+        let existSt = mailText.text! + latestSt
+        let emailRegEx = "[A-Z0-9a-z._+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
+        let emailRegEx2 = "[A-Z0-9a-z._+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}+\\.[A-Za-z]{2,4}"
+        let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        let emailTest2 = NSPredicate(format:"SELF MATCHES %@", emailRegEx2)
+        let result = emailTest.evaluate(with: existSt)
+        let result2 = emailTest2.evaluate(with: existSt)
+        print("***** String check! -> \(existSt)")
+        print("***** result check! -> \(result),\(result2)")
+        if result||result2 {
+            return true
+        } else {
+            return false
         }
     }
     
-    func checkLoggedIn2() {
-        handle = Auth.auth().addStateDidChangeListener{auth, user in
-            if Auth.auth().currentUser != nil {
-                print("**** Listener_success2")
-                self.performSegue(withIdentifier: "ToCollectoin",sender: nil)
-            } else {
-                print("**** Listener_fail2")
-                self.login()
-            }
+// Validation check for Password
+    func isValidPW() -> Bool {
+        let existCount = pwText.text?.count ?? 0
+        if existCount < 4 {
+            return false
+        } else {
+            return true
         }
     }
     
-    func setupLogin() {
-        authUI.delegate = self
-        authUI.providers = providers
-//        authUI.isSignInWithEmailHidden = true
-        let kFirebaseTermsOfService = URL(string: "https://frogment-ccf72.firebaseapp.com")!
-        authUI.tosurl = kFirebaseTermsOfService
-        print("**** after_setupLogin")
-
+    private func showErrorIfNeeded(_ errorOrNil: Error?) {
+        guard let error = errorOrNil else { return }
+        
+        let message = errorMessage(of: error)
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.indicator.stopAnimating()
+        present(alert, animated: true, completion: nil)
     }
     
-    func login() {
-        let authViewController = authUI.authViewController()
-        self.present(authViewController, animated: true, completion: nil)
-        print("**** go_to_login")
-
-    }
-    
-    func signOut() {
-        let authUI = FUIAuth.defaultAuthUI()
-        do {
-            try authUI?.signOut()
-            print("**** signOut")
-        } catch {
-            print("**** サインアウト失敗")
+    private func errorMessage(of error: Error) -> String {
+        var message = "Error is occurred!"
+        guard let errcd = AuthErrorCode(rawValue: (error as NSError).code) else {
+            return message
         }
         
+        switch errcd {
+        case .networkError: message = "Network Error!"
+        case .userNotFound: message = "User is not found!"
+        case .invalidEmail: message = "E-mail invalid error!"
+        case .emailAlreadyInUse: message = "This E-mail is already used!"
+        case .wrongPassword: message = "Password is wrong!"
+        case .userDisabled: message = "This user is disabled!"
+        case .weakPassword: message = "Password is wrong!"
+        default: break
+        }
+        return message
+    }
+    
+    func alertApper(){
+        let message = "Login Completed!"
+        let alertSheet1 = UIAlertController(title: nil, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        let alert1 = UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: {
+            action in
+            self.performSegue(withIdentifier: "ToCollectoin",sender: nil)
+            print("**** Go to Home screen")
+        })
+        alertSheet1.addAction(alert1)
+        self.indicator.stopAnimating()
+        self.present(alertSheet1, animated: true, completion: nil)
+        
+    }
+    
+    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
+        if let error = error {
+            print("**** Error: \(error.localizedDescription)")
+            return
+        }
+        let authentication = user.authentication
+        let credential = GoogleAuthProvider.credential(withIDToken: (authentication?.idToken)!,accessToken: (authentication?.accessToken)!)
+        
+        Auth.auth().signInAndRetrieveData(with: credential) { (user, error) in
+            self.indicator.stopAnimating()
+            if error == nil {
+                print("**** Google Login is Completed")
+                self.alertApper()
+            }
+            self.showErrorIfNeeded(error)
+            print("***** finish Google login process")
+        }
     }
 
+    func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!, withError error: Error!) {
+        print("**** Google Logout successfully")
+    }
     
+    func showIndicator() {
+        indicator.activityIndicatorViewStyle = .whiteLarge
+        indicator.center = self.view.center
+        indicator.color = UIColor.black
+        indicator.hidesWhenStopped = true
+        self.view.addSubview(indicator)
+        self.view.bringSubview(toFront: indicator)
+        indicator.startAnimating()
+    }
     
 }
 
-
+extension ViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        switch textField.tag {
+        case 0:
+            pwText.becomeFirstResponder()
+            break
+        case 1:
+            textField.resignFirstResponder()
+            break
+        default:
+            break
+        }
+        return true
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
+        if (self.mailText.isFirstResponder) {
+            self.mailText.resignFirstResponder()
+        } else if (self.pwText.isFirstResponder) {
+            self.pwText.resignFirstResponder()
+        }
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        print("**** textField.tag : \(textField.tag)")
+        if textField.tag == 0 {
+            if isValidEmail(latestSt:string) {
+                mailText.textColor = UIColor.black
+                mailUnderBar.backgroundColor = UIColor.black
+                resultTag0 = true
+            } else {
+                mailText.textColor = UIColor.red
+                mailUnderBar.backgroundColor = UIColor.red
+                resultTag0 = false
+            }
+        } else {
+            if isValidPW() {
+                pwText.textColor = UIColor.black
+                pwUnderBar.backgroundColor = UIColor.black
+                resultTag1 = true
+            } else {
+                pwText.textColor = UIColor.red
+                pwUnderBar.backgroundColor = UIColor.red
+                resultTag1 = false
+            }
+        }
+        if resultTag0 && resultTag1 {
+            logInBar.isEnabled = true
+            logInBar.backgroundColor = UIColor.black
+            print("***** Validation is success!")
+            print("***** Validation resultTag0 -> \(resultTag0)")
+            print("***** Validation resultTag1 -> \(resultTag1)")
+        } else {
+            logInBar.isEnabled = false
+            logInBar.backgroundColor = UIColor.lightGray
+            print("***** Validation is error!")
+            print("***** Validation resultTag0 -> \(resultTag0)")
+            print("***** Validation resultTag1 -> \(resultTag1)")
+        }
+        return true
+    }
+    
+}
 
 
 

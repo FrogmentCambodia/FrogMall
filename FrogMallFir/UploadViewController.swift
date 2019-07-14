@@ -9,8 +9,6 @@
 import UIKit
 import Firebase
 import FirebaseUI
-//import FirebaseAuthUI
-//import FirebaseGoogleAuthUI
 import FirebaseDatabase
 
 class UploadViewController: UIViewController {
@@ -64,8 +62,6 @@ class UploadViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        let ud = UserDefaults.standard
-//        ud.set(0, forKey: "count")
         setupFirebase()
         inputTableView = UITableView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 140), style: .grouped)
         inputTableView.frame.origin.y = priceTF.frame.maxY + 1
@@ -166,7 +162,6 @@ class UploadViewController: UIViewController {
         let storageRef = storage.reference(forURL: "gs://frogment-ccf72.appspot.com")
         let imageRef = storageRef.child("images")
         let metadata = StorageMetadata()
-//        metadata.contentType = "image/png"
         metadata.contentType = "image/jpeg"
         print("**** start uploading file")
         updateCount()
@@ -174,7 +169,6 @@ class UploadViewController: UIViewController {
         self.updatePicStatus(picNo: "pic2", status: "before")
         self.updatePicStatus(picNo: "pic3", status: "before")
 
-//          let reference = imageRef.child(NSUUID().uuidString + "/" + countPhoto() + ".jpg")
         if action1Status == 9 {
             self.updatePicStatus(picNo: "pic1", status: "uploading")
             let reference = imageRef.child("sample" + String(self.countDB) + ".jpg")
@@ -303,8 +297,8 @@ class UploadViewController: UIViewController {
         upData3.removeAll()
         inputTableView.reloadData()
         self.upButton01.setImage(#imageLiteral(resourceName: "camera008"), for : UIControlState())
-//20170925        self.upButton02.setImage(#imageLiteral(resourceName: "camera007"), for : UIControlState())
-//20170925        self.upButton03.setImage(#imageLiteral(resourceName: "camera007"), for : UIControlState())
+//        self.upButton02.setImage(#imageLiteral(resourceName: "camera007"), for : UIControlState())
+//        self.upButton03.setImage(#imageLiteral(resourceName: "camera007"), for : UIControlState())
 
     }
 
@@ -411,7 +405,6 @@ extension UploadViewController: FUIAuthDelegate {
     func setupLogin() {
         authUI.delegate = self
         authUI.providers = providers
-        //        authUI.isSignInWithEmailHidden = true
         let kFirebaseTermsOfService = URL(string: "https://frogment-ccf72.firebaseapp.com")!
         authUI.tosurl = kFirebaseTermsOfService
         print("**** after_setupLogin")
@@ -572,47 +565,3 @@ extension UploadViewController: UIImagePickerControllerDelegate {
     }
     
 }
-
-
-/*
- func countPhoto() -> String {
- let ud = UserDefaults.standard
- let count = ud.object(forKey: "count") as! Int
- ud.set(count + 1, forKey: "count")
- return String(count)
- }
- */
-
-/*
- override func viewDidLoad() {
- super.viewDidLoad()
- print("**** Start_UploadVC")
- 
- // [1]ストレージ サービスへの参照を取得
- let storage = Storage.storage()
- // [2]ストレージへの参照を取得
- let storageRef = storage.reference(forURL: "gs://frogment-ccf72.appspot.com")
- // [3]ツリーの下位への参照を作成
- let imageRef = storageRef.child("images")    //rootからDir
- var spaceRef = imageRef.child("sample_test.png")   //Dirからfile
- let path = spaceRef.fullPath;                //fileのフルパス取得
- 
- // [4]Dataを作成
- let imageData = UIImagePNGRepresentation(UIImage(named: "sample_test")!)!
- 
- // [5]アップロードを実行
- spaceRef.putData(imageData, metadata: nil) { metadata, error in
- if (error != nil) {
- print("**** Uh-oh, an error occurred!")
- } else {
- let downloadURL = metadata!.downloadURL()!
- print("**** Uploading is Success!")
- print("**** downloadURL:", downloadURL)
- }
- }
- }
- 
- }
- */
-
-

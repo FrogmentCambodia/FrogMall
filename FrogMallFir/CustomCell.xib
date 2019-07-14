@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -71,22 +71,32 @@
                         <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PRk-Yf-qyM">
+                        <rect key="frame" x="71" y="59.5" width="249" height="1"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="1" id="gB7-1g-ESK"/>
+                        </constraints>
+                    </view>
                 </subviews>
                 <constraints>
                     <constraint firstItem="JEX-Pg-sXH" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="29" id="0Lu-lZ-Nro"/>
                     <constraint firstAttribute="trailing" secondItem="JEX-Pg-sXH" secondAttribute="trailing" constant="15" id="3Yy-yj-oiB"/>
+                    <constraint firstItem="PRk-Yf-qyM" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="71" id="3tf-1P-zJR"/>
                     <constraint firstItem="2VZ-Ui-mly" firstAttribute="leading" secondItem="n0p-fs-S40" secondAttribute="trailing" constant="8" id="6xB-0t-bHb"/>
                     <constraint firstAttribute="bottom" secondItem="JEX-Pg-sXH" secondAttribute="bottom" constant="11" id="7Ng-eI-7z5"/>
                     <constraint firstItem="n0p-fs-S40" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="2" id="8nY-Yf-1ZT"/>
                     <constraint firstAttribute="bottom" secondItem="aBt-fm-p62" secondAttribute="bottom" constant="6" id="I23-mm-9v1"/>
                     <constraint firstItem="sVb-t8-Y5r" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="24" id="I4r-dV-2wR"/>
                     <constraint firstAttribute="trailing" secondItem="sVb-t8-Y5r" secondAttribute="trailing" constant="10" id="LHY-Pt-r9o"/>
+                    <constraint firstAttribute="trailing" secondItem="PRk-Yf-qyM" secondAttribute="trailing" id="NHX-Vm-JI8"/>
                     <constraint firstAttribute="bottom" secondItem="n0p-fs-S40" secondAttribute="bottom" constant="2" id="VQM-fD-4gQ"/>
                     <constraint firstItem="aBt-fm-p62" firstAttribute="leading" secondItem="n0p-fs-S40" secondAttribute="trailing" constant="8" id="VgO-Tg-paP"/>
                     <constraint firstAttribute="bottom" secondItem="sVb-t8-Y5r" secondAttribute="bottom" constant="6" id="dao-e2-LLA"/>
                     <constraint firstItem="n0p-fs-S40" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="2" id="eqr-8I-cR6"/>
                     <constraint firstAttribute="trailing" secondItem="Uns-ms-3OS" secondAttribute="trailing" constant="10" id="nTR-xn-o2R"/>
                     <constraint firstItem="2VZ-Ui-mly" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="1" id="nhZ-Ka-dJ6"/>
+                    <constraint firstAttribute="bottom" secondItem="PRk-Yf-qyM" secondAttribute="bottom" id="qQl-yS-3t6"/>
                     <constraint firstItem="Uns-ms-3OS" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="7" id="tVy-vI-F9X"/>
                 </constraints>
             </tableViewCellContentView>
@@ -99,7 +109,7 @@
                 <outlet property="cusMsg" destination="aBt-fm-p62" id="Pof-N9-vcY"/>
                 <outlet property="cusName" destination="Uns-ms-3OS" id="DvG-Tu-HGf"/>
             </connections>
-            <point key="canvasLocation" x="34" y="62"/>
+            <point key="canvasLocation" x="33.600000000000001" y="61.169415292353825"/>
         </tableViewCell>
     </objects>
 </document>

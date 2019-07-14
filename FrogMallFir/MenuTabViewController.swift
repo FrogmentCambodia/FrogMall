@@ -10,9 +10,7 @@ import UIKit
 import MessageUI
 import Firebase
 import FirebaseUI
-//import FirebaseAuthUI
 import FirebaseStorage
-//import FirebaseStorageUI
 
 class MenuTabViewController: UIViewController, MFMailComposeViewControllerDelegate  {
     @IBOutlet weak var menuView: UIView!
@@ -38,10 +36,10 @@ class MenuTabViewController: UIViewController, MFMailComposeViewControllerDelega
             photoURL = user.photoURL
             userName = user.displayName!
         }
-        let topImage = UIImage(named: "account_bar4")
+        let topImage = UIImage(named: "background7")
         menuTopView.image = topImage
-        SDImageCache.shared().clearDisk()
-        SDImageCache.shared().clearMemory()
+        SDImageCache.shared.clearDisk()
+        SDImageCache.shared.clearMemory()
         getAccountImage()
         userImage.contentMode = .scaleAspectFill
         userImage.clipsToBounds = true
@@ -74,6 +72,7 @@ class MenuTabViewController: UIViewController, MFMailComposeViewControllerDelega
             },completion: { bool in })
     }
     
+    // Get profile image
     func getAccountImage() {
         let storageRef = storage.reference(forURL: "gs://frogment-ccf72.appspot.com")
         let imageRef = storageRef.child("account/\(uid)")
@@ -112,6 +111,7 @@ class MenuTabViewController: UIViewController, MFMailComposeViewControllerDelega
         }
     }
     
+    // Prepare for E-mail to send
     func sendMail() {
         if MFMailComposeViewController.canSendMail() {
             let mail = MFMailComposeViewController()
@@ -155,34 +155,14 @@ extension MenuTabViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return cellMenu.count
     }
-/*
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return cellMenu[section]
-    }
-*/
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         let cellData = cellMenu[(indexPath as NSIndexPath).row]
         cell.textLabel?.text = cellData
-//        cell.textLabel?.textColor = UIColor.gray
-//        cell.textLabel?.font = UIFont.systemFont(ofSize: 14)
         cell.accessoryType = UITableViewCellAccessoryType.disclosureIndicator
         return cell
     }
-    
-/*
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if (section == 0) {
-            return 30;
-        } else {
-            return 10;
-        }
-    }
- 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 40
-    }
-     */
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -194,7 +174,7 @@ extension MenuTabViewController: UITableViewDelegate, UITableViewDataSource {
             let authUI = FUIAuth.defaultAuthUI()
             do {
                 try authUI?.signOut()
-                performSegue(withIdentifier: "BackToHomeS",sender: nil)
+                performSegue(withIdentifier: "BackToHomeS6",sender: nil)
                 print("**** signOut")
             } catch {
                 print("**** signOut Error")

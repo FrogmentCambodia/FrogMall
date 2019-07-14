@@ -66,7 +66,7 @@ class SellListViewController: UIViewController {
         countList.removeAll()
         descList.removeAll()
         areaList.removeAll()
-        SDImageCache.shared().clearDisk()
+        SDImageCache.shared.clearDisk()
         setupFirebase()
         sellListTable.register (UINib(nibName: "CustomCell2", bundle: nil),forCellReuseIdentifier:"cell2")
         checkLoggedIn()
@@ -96,14 +96,11 @@ class SellListViewController: UIViewController {
             self.countList.append(countDB)
             self.descList.append(desc)
             self.areaList.append(area)
-//            print("**** pathList -> \(self.pathList)")
-//            print("**** sellDateList -> \(self.sellDateList)")
-
             self.sellListTable.delegate = self
             self.sellListTable.dataSource = self
             self.sellListTable.isScrollEnabled = true
-            SDImageCache.shared().clearDisk()
-            SDImageCache.shared().clearMemory()
+            SDImageCache.shared.clearDisk()
+            SDImageCache.shared.clearMemory()
             self.sellListTable.reloadData()
         })
     }
@@ -185,7 +182,6 @@ extension SellListViewController: UITableViewDelegate, UITableViewDataSource, Ce
                 print("**** getSellData error \(fileName),\(error)")
                 cell2.sellImage.image = UIImage(named: "NoImage2")
             } else {
-//                print("**** getSellData success \(fileName)")
             }
         }
         cell2.sellImage.clipsToBounds = true
